@@ -114,10 +114,10 @@ export default function Header() {
         <Navbar.Toggle />
       </div>
         <Navbar.Collapse className="orbitron text-xs md:hidden lg:hidden xl:flex" > 
-          <Navbar.Link active={path === '/'} as={'div'}><Link to='/'>Home</Link></Navbar.Link>
+          <Navbar.Link active={path === '/'} as={'div'}><Link to='/'>HOME</Link></Navbar.Link>
           <Navbar.Link active={path === '/ai'} as={'div'}><Link to={`/category/ai`}>AI</Link></Navbar.Link>
           <Navbar.Link active={path === '/blockchain'} as={'div'}><Link to={`/category/blockchain`}>BLOCKCHAIN</Link></Navbar.Link>
-          <Navbar.Link active={path === '/bigdata'} as={'div'}><Link to={`/category/bigdata`}>BIG DATA</Link></Navbar.Link>
+          <Navbar.Link active={path === '/security'} as={'div'}><Link to={`/category/security`}>SECURITY</Link></Navbar.Link>
           <Navbar.Link active={path === '/clouds'} as={'div'}><Link to={`/category/clouds`}>CLOUDS</Link></Navbar.Link>
           <Navbar.Link active={path === '/webapps'} as={'div'}><Link to={`/category/webapps`}>WEB APPS</Link></Navbar.Link>
           <Navbar.Link active={path === '/iot'} as={'div'}><Link to={`/category/iot`}>IOT</Link></Navbar.Link>
@@ -127,10 +127,10 @@ export default function Header() {
     <div className="border-b-2 !orbitron m-auto justify-center hidden  md:flex lg:flex xl:hidden">
    <Navbar>
       <Navbar.Collapse className="orbitron text-xs" > 
-      <Navbar.Link active={path === '/'} as={'div'}><Link to='/'>Home</Link></Navbar.Link>
+      <Navbar.Link active={path === '/'} as={'div'}><Link to='/'>HOME</Link></Navbar.Link>
       <Navbar.Link active={path === '/ai'} as={'div'}><Link to={`/category/ai`}>AI</Link></Navbar.Link>
       <Navbar.Link active={path === '/blockchain'} as={'div'}><Link to={`/category/blockchain`}>BLOCKCHAIN</Link></Navbar.Link>
-      <Navbar.Link active={path === '/bigdata'} as={'div'}><Link to={`/category/bigdata`}>BIG DATA</Link></Navbar.Link>
+      <Navbar.Link active={path === '/security'} as={'div'}><Link to={`/category/security`}>SECURITY</Link></Navbar.Link>
       <Navbar.Link active={path === '/clouds'} as={'div'}><Link to={`/category/clouds`}>CLOUDS</Link></Navbar.Link>
       <Navbar.Link active={path === '/webapps'} as={'div'}><Link to={`/category/webapps`}>WEB APPS</Link></Navbar.Link>
       <Navbar.Link active={path === '/iot'} as={'div'}><Link to={`/category/iot`}>IOT</Link></Navbar.Link>

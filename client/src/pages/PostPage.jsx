@@ -59,7 +59,7 @@ export default function PostPage() {
     );
   return (
     <main className="p-3 flex flex-col max-w-6xl mx-auto min-h-screen">
-      <h1 className="text-3xl mt-10 px-3 pb-2 orbitron text-black dark:text-white uppercase text-center font-serif max-w-2xl mx-auto lg:text-4xl">
+      <h1 className="text-2xl mt-10 px-3 pb-2 orbitron text-black dark:text-white uppercase text-center font-serif max-w-2xl mx-auto lg:text-3xl">
         {post && post.title}
       </h1>
       <Link

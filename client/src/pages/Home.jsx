@@ -7,19 +7,13 @@ import HeroSection from './heroSection';
 
 export default function Home() {
   const [posts, setPosts] = useState([]); 
-  const [blockchain, setBlockchain] = useState([]);
-  const [AI, setAI] = useState([]);
-  const [cyber,setCyber] = useState([])
-  const [cloud,setCloud] = useState([])
-  const [game,setGame] = useState([])
-  const [IOT,setIOT] = useState([])
-  const [industry,setIndustry] = useState([])
   const [filteredPosts, setFilteredPosts] = useState([]);
 
   useEffect(() => {
     const fetchPosts = async () => {
       const res = await fetch('/api/post/getPosts');
       const data = await res.json();
+      console.log(data);
       setPosts(data.posts);
       filterPostsByCategory(data.posts)
     };
@@ -28,19 +22,19 @@ export default function Home() {
 
   const filterPostsByCategory = (posts) => {
     const categories = {
-      reactjs: [],
-      nextjs: [],
-      javascript: [],
       ai: [],
       blockchain: [],
       bigdata: [],
+      security:[],
       clouds: [],
       webapps: [],
       iot: [],
       trends: [],
     }; 
+    console.log(posts);
     posts.forEach(post => {
       if (categories.hasOwnProperty(post.category)) {
+        console.log(post);
         categories[post.category].push(post);
       }
     });
@@ -54,7 +48,7 @@ export default function Home() {
           <Link to={`/category/${category}`} className='text-right pt-1 font-semibold orbitron tracking-wide' style={{fontSize:"13px"}}>View All</Link>
         </div> 
         <div className='flex mt-2 flex-wrap gap-7'>
-          {filteredPosts[category].map((post) => (
+          {filteredPosts[category].slice(0, 8).map((post) => (
             <PostCard key={post._id} post={post} />
           ))}
         </div>
@@ -64,7 +58,7 @@ export default function Home() {
   };
  
   return (
-    <div> 
+    <div  style={{ minHeight: `calc(100vh - 100px)` }}> 
       <div className='xl:max-w-6xl lg:max-w-4xl md:max-w-[90%] p-5 sm:pt-8 mx-auto  flex flex-col gap-6'>
       {posts && posts.length > 0 && (
       <div className='mb-2'>          

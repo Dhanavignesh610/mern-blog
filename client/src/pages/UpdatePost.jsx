@@ -1,5 +1,4 @@
 import { Alert, Button, FileInput, Select, TextInput } from 'flowbite-react';
-import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import {
   getDownloadURL,
@@ -8,22 +7,23 @@ import {
   uploadBytesResumable,
 } from 'firebase/storage';
 import { app } from '../firebase';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import JoditEditor from 'jodit-react';
 
 export default function UpdatePost() {
   const [file, setFile] = useState(null);
   const [imageUploadProgress, setImageUploadProgress] = useState(null);
   const [imageUploadError, setImageUploadError] = useState(null);
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState({  });
   const [publishError, setPublishError] = useState(null);
   const { postId } = useParams();
-
-  const navigate = useNavigate();
-    const { currentUser } = useSelector((state) => state.user);
+  const { currentUser } = useSelector((state) => state.user);
+  const navigate = useNavigate()
+  const editor = useRef(null);
 
   useEffect(() => {
     try {
@@ -36,7 +36,7 @@ export default function UpdatePost() {
         }
         if (res.ok) {
           setPublishError(null);
-          setFormData(data.posts[0]);
+          setFormData(data.posts[0]); 
         }
       };
 
@@ -45,7 +45,6 @@ export default function UpdatePost() {
       console.log(error.message);
     }
   }, [postId]);
-
   const handleUpdloadImage = async () => {
     try {
       if (!file) {
@@ -108,7 +107,7 @@ export default function UpdatePost() {
   };
   return (
     <div className='p-3 max-w-3xl mx-auto min-h-screen'>
-      <h1 className='text-center text-3xl my-7 font-semibold'>Update post</h1>
+      <h1 className='text-center text-3xl my-7 font-semibold orbitron'>Update post</h1>
       <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
         <div className='flex flex-col gap-4 sm:flex-row justify-between'>
           <TextInput
@@ -129,12 +128,15 @@ export default function UpdatePost() {
             value={formData.category}
           >
             <option value='uncategorized'>Select a category</option>
-            <option value='javascript'>JavaScript</option>
-            <option value='reactjs'>React.js</option>
-            <option value='nextjs'>Next.js</option>
+            <option value='ai'>AI</option>
+            <option value='blockchain'>Blockchain</option>
+            <option value='security'>Security</option>
+            <option value='clouds'>Clouds</option>
+            <option value='iot'>IOT</option>
+            <option value='trends'>Trends</option>
           </Select>
         </div>
-        <div className='flex gap-4 items-center justify-between border-4 border-teal-500 border-dotted p-3'>
+        <div className='flex gap-4 items-center justify-between rounded border-2 p-2'>
           <FileInput
             type='file'
             accept='image/*'
@@ -168,16 +170,14 @@ export default function UpdatePost() {
             className='w-full h-72 object-cover'
           />
         )}
-        <ReactQuill
-          theme='snow'
-          value={formData.content}
-          placeholder='Write something...'
-          className='h-72 mb-12'
-          required
-          onChange={(value) => {
-            setFormData({ ...formData, content: value });
-          }}
-        />
+
+ <JoditEditor
+			ref={editor}
+			value={formData.content}
+			tabIndex={1} // tabIndex of textarea
+      onChange={(newContent) => setFormData({ ...formData, content: newContent })}
+		/>
+
         <Button type='submit' gradientDuoTone='purpleToPink'>
           Update post
         </Button>

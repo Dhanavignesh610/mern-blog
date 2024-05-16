@@ -8,7 +8,7 @@ export default function FooterCom() {
   return (
     <Footer
       container
-      className=" border-gray-200 dark:border-gray-700 rounded-none"
+      className=" border-gray-200 dark:border-gray-700 mt-8 rounded-none"
       style={{ borderTopWidth: "2px" }}
     >
       <div className="w-full max-w-7xl px-2 mx-auto">
@@ -33,14 +33,14 @@ export default function FooterCom() {
             <div>
               <Footer.Title title="Quick Links" />
               <Footer.LinkGroup col className="pb-4">
-                <Footer.Link href="/">Home</Footer.Link>
+                <Footer.Link href="/">HOME</Footer.Link>
                 <Footer.Link href="/about">AI</Footer.Link>
                 <Footer.Link href="#">BLOCKCHAIN</Footer.Link>
                 <Footer.Link href="/">BIG DATA</Footer.Link>
               </Footer.LinkGroup>  
               <Footer.LinkGroup col className="sm:hidden">
             <Footer.Link href="/about">CLOUDS</Footer.Link>
-            <Footer.Link href="#">WEB APPs</Footer.Link>
+            <Footer.Link href="#">WEB APPS</Footer.Link>
             <Footer.Link href="#">IOT</Footer.Link>
             <Footer.Link href="/">TRENDS</Footer.Link>
             </Footer.LinkGroup>            
@@ -58,7 +58,7 @@ export default function FooterCom() {
               <Footer.Title title="Follow us" />
               <Footer.LinkGroup col>
                 <Footer.Link
-                  href="https://www.github.com/dhanavignesh610"
+                  href=""
                   target="_blank"
                   rel="noopener noreferrer"
                 >

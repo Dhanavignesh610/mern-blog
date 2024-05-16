@@ -42,3 +42,8 @@ body {
 .dark .post-content a {
   color: red;
 }
+
+.jodit-workplace{
+  min-height: 180px !important;
+  height:400px !important ;
+}

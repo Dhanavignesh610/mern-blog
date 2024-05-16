@@ -4,7 +4,9 @@ import Footer from './components/Footer';
 import PrivateRoute from './components/PrivateRoute';
 import OnlyAdminPrivateRoute from './components/OnlyAdminPrivateRoute';
 import ScrollToTop from './components/ScrollToTop';
-import { Suspense, lazy } from 'react';
+import { Suspense, lazy, useEffect } from 'react';
+import CustomizeLoading from './components/CustomizeLoading';
+
 
 const Home = lazy(() => import("./pages/Home"));
 const About = lazy(() => import("./pages/About"));
@@ -18,11 +20,20 @@ const UpdatePost = lazy(() => import("./pages/UpdatePost"));
 const PostPage = lazy(() => import("./pages/PostPage"));
 
 export default function App() {
+  // const [loading, setLoading] = useState(true);
+
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     setLoading(false);
+  //   }, 90000);
+
+  //   return () => clearTimeout(timer);
+  // }, []);
   return (
     <BrowserRouter>
       <ScrollToTop />
       <Header />
-      <Suspense fallback={<h1>Loading...</h1>}>
+      <Suspense fallback={<CustomizeLoading />}>
       <Routes>
         <Route path='/' element={<Home />} />
         <Route path='/about' element={<About />} />

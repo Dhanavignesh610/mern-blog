@@ -1,5 +1,4 @@
 import { Alert, Button, FileInput, Select, TextInput } from 'flowbite-react';
-import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import {
   getDownloadURL,
@@ -8,11 +7,12 @@ import {
   uploadBytesResumable,
 } from 'firebase/storage';
 import { app } from '../firebase';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import JoditEditor from 'jodit-react';
 
 export default function CreatePost() {
   const [file, setFile] = useState(null);
@@ -21,8 +21,8 @@ export default function CreatePost() {
   const {currentUser} = useSelector((state)=> state.user)
   const [formData, setFormData] = useState({author:currentUser.username});
   const [publishError, setPublishError] = useState(null);
-
   const navigate = useNavigate();
+  const editor = useRef(null);
 
   const handleUpdloadImage = async () => {
     try {
@@ -86,7 +86,7 @@ export default function CreatePost() {
   };
   return (
     <div className='p-3 max-w-3xl mx-auto min-h-screen'>
-      <h1 className='text-center text-3xl my-7 font-semibold'>Create a post</h1>
+      <h1 className='text-center text-3xl my-7 font-semibold orbitron'>Create a post</h1>
       <p>{currentUser.username}</p>
       <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
         <div className='flex flex-col gap-4 sm:flex-row justify-between'>
@@ -106,18 +106,16 @@ export default function CreatePost() {
             }
           >
             <option value='uncategorized'>Select a category</option>
-            <option value='javascript'>JavaScript</option>
-            <option value='reactjs'>React.js</option>
-            <option value='nextjs'>Next.js</option>
             <option value='ai'>AI</option>
             <option value='blockchain'>Blockchain</option>
-            <option value='bigdata'>BigData</option>
+            <option value='security'>Security</option>
             <option value='clouds'>Clouds</option>
+            <option value='webapps'>Webapps</option>
             <option value='iot'>IOT</option>
             <option value='trends'>Trends</option>
           </Select>
         </div>
-        <div className='flex gap-4 items-center justify-between border-4 border-teal-500 border-dotted p-3'>
+        <div className='flex gap-4 items-center justify-between rounded border-2  p-2'>
           <FileInput
             type='file'
             accept='image/*'
@@ -151,15 +149,13 @@ export default function CreatePost() {
             className='w-full h-72 object-cover'
           />
         )}
-        <ReactQuill
-          theme='snow'
-          placeholder='Write something...'
-          className='h-72 mb-12'
-          required
-          onChange={(value) => {
-            setFormData({ ...formData, content: value });
-          }}
-        />
+
+      <JoditEditor
+			ref={editor}
+			value={formData.content}  
+			tabIndex={1}
+      onChange={(newContent) => setFormData({ ...formData, content: newContent })}
+		/>
         <Button type='submit' gradientDuoTone='purpleToPink'>
           Publish
         </Button>
