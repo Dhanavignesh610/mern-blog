@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import PostCard from "../components/PostCard";
 
-function Category() {
+export default function Category() {
     const [categoryposts,setCategoryposts] = useState([]) 
     const location = useLocation();
     const path = location.pathname;
@@ -31,5 +31,4 @@ function Category() {
     </div>
   )
 }
-
-export default Category
+ 

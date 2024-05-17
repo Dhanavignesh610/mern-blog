@@ -13,22 +13,13 @@ const About = lazy(() => import("./pages/About"));
 const SignIn = lazy(() => import("./pages/SignIn"));
 const SignUp = lazy(() => import("./pages/SignUp"));
 const Search = lazy(() => import("./pages/Search"));
-const Category = lazy(() => import("./pages/category"));
+const Category = lazy(() => import("./pages/Category"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const CreatePost = lazy(() => import("./pages/CreatePost"));
 const UpdatePost = lazy(() => import("./pages/UpdatePost"));
 const PostPage = lazy(() => import("./pages/PostPage"));
 
 export default function App() {
-  // const [loading, setLoading] = useState(true);
-
-  // useEffect(() => {
-  //   const timer = setTimeout(() => {
-  //     setLoading(false);
-  //   }, 90000);
-
-  //   return () => clearTimeout(timer);
-  // }, []);
   return (
     <BrowserRouter>
       <ScrollToTop />
