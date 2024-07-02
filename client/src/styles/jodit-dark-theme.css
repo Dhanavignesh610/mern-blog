@@ -1,0 +1,76 @@
+ 
+ /* jodit-jodit_theme_dark-theme.css */
+  .jodit_theme_dark .jodit-container {
+  background-color: #00ee47 !important; /* Black background */
+  color: #ffffff; /* White text */
+  }
+
+  .jodit_theme_dark .jodit-toolbar-button__button:hover:not([disabled]) {
+  background-color: black !important;
+  color: #ffffff !important;
+  }
+
+  .jodit_theme_dark .jodit-toolbar-button:hover:not([disabled]) {
+  background-color: black !important;
+  color: #ffffff !important;
+  border-color: rgb(230, 230, 230) !important;
+  }
+
+  .jodit_theme_dark .jodit-toolbar-button .jodit-icon:hover:not([disabled]) {
+  fill: #ffffff !important;
+  }
+  /* .jodit_theme_dark .jodit-toolbar-button .jodit-icon {
+    fill: silver;
+    stroke: silver; 
+} */
+  .jodit_theme_dark .jodit-toolbar-button__trigger:hover:not([disabled]) {
+  background-color: black !important;
+  color: #ffffff !important;
+  }
+
+  .jodit_theme_dark .jodit-popup__content {
+  background: #161f36 !important;
+  }
+
+  .jodit_theme_dark .jodit-toolbar-button__text:hover:not([disabled]) {
+  background-color: #020304 !important;
+  color: #ffffff !important;
+  }
+
+  .jodit_theme_dark .jodit-toolbar-button__trigger:hover:not([disabled]) {
+  background-color: black;
+  color: #575757;
+  }
+
+  .jodit_theme_dark .jodit-toolbar-button__button[aria-pressed=true]:not([disabled]) {
+  background-color: hsl(227, 100%, 3%) !important;
+  outline: 0;
+  }
+
+  .jodit_theme_dark .jodit-toolbar-button:hover {
+  background-color: #000000; /* Lighter gray on hover */
+  }
+
+  .jodit_theme_dark .jodit-status-bar {
+  background-color: #0b1a3f !important;
+  }
+
+  .jodit_theme_dark .jodit-wysiwyg {
+  background-color: #06112c !important; 
+  color: #fff !important;
+  }
+
+  .jodit_theme_dark .jodit-toolbar__box {
+  background: #04153f !important;
+  }
+
+  .jodit-add-new-line {
+    top: 144px !important;
+    width: 724px  !important; 
+  }
+  
+  .jodit-wysiwyg {
+  padding: 18px 18px 18px 26px !important;
+  }
+
+

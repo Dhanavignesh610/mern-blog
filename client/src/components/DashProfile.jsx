@@ -1,6 +1,6 @@
 import { Alert, Button, Modal, ModalBody, TextInput } from 'flowbite-react';
 import { useEffect, useRef, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import {
   getDownloadURL,
   getStorage,
@@ -18,13 +18,16 @@ import {
   deleteUserSuccess,
   deleteUserFailure,
   signoutSuccess,
+  updateAccessToken,
+  clearState,
 } from '../redux/user/userSlice';
-import { useDispatch } from 'react-redux';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import useAxiosprivate from '../hooks/useAxiosprivate';
 
 export default function DashProfile() {
-  const { currentUser, error, loading } = useSelector((state) => state.user);
+  const axiosPrivate = useAxiosprivate();
+  const { currentUser, loading } = useSelector((state) => state.user);
   const [imageFile, setImageFile] = useState(null);
   const [imageFileUrl, setImageFileUrl] = useState(null);
   const [imageFileUploadProgress, setImageFileUploadProgress] = useState(null);
@@ -36,6 +39,8 @@ export default function DashProfile() {
   const [formData, setFormData] = useState({});
   const filePickerRef = useRef();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -43,29 +48,21 @@ export default function DashProfile() {
       setImageFileUrl(URL.createObjectURL(file));
     }
   };
-  useEffect(() => { 
-    if (imageFile) { 
-      uploadImage(); 
-    } 
-  }, [imageFile]); 
+
+  useEffect(() => {
+    if (imageFile) {
+      uploadImage();
+    }
+  }, [imageFile]);
 
   const uploadImage = async () => {
-    // service firebase.storage {
-    //   match /b/{bucket}/o {
-    //     match /{allPaths=**} {
-    //       allow read;
-    //       allow write: if
-    //       request.resource.size < 2 * 1024 * 1024 &&
-    //       request.resource.contentType.matches('image/.*')
-    //     }
-    //   }
-    // }
     setImageFileUploading(true);
     setImageFileUploadError(null);
     const storage = getStorage(app);
     const fileName = new Date().getTime() + imageFile.name;
     const storageRef = ref(storage, fileName);
     const uploadTask = uploadBytesResumable(storageRef, imageFile);
+
     uploadTask.on(
       'state_changed',
       (snapshot) => {
@@ -73,11 +70,9 @@ export default function DashProfile() {
           (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
         setImageFileUploadProgress(progress.toFixed(0));
       },
-      (error) => {  
+      (error) => {
         console.log(error);
-        setImageFileUploadError(
-          'Could not upload image (File must be less than 2MB)'
-        );
+        setImageFileUploadError('Could not upload image (File must be less than 2MB)');
         setImageFileUploadProgress(null);
         setImageFile(null);
         setImageFileUrl(null);
@@ -111,61 +106,62 @@ export default function DashProfile() {
     }
     try {
       dispatch(updateStart());
-      const res = await fetch(`/api/user/update/${currentUser._id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        dispatch(updateFailure(data.message));
-        setUpdateUserError(data.message);
+      const res = await axiosPrivate.put(`user/update/${currentUser._id}`, formData);
+      const user = res.data
+    if (res.status !== 200) {
+        dispatch(updateFailure(res.message)); 
+        setUpdateUserError(res.message);
       } else {
-        dispatch(updateSuccess(data));
+        dispatch(updateSuccess(user)); 
         setUpdateUserSuccess("User's profile updated successfully");
       }
-    } catch (error) {
-      dispatch(updateFailure(error.message));
-      setUpdateUserError(error.message);
+    } catch (error) { 
+      console.log(error);
+      const errormsg = error.response.data.message || "something went wrong "
+      dispatch(updateFailure(errormsg));
+      setUpdateUserError(errormsg);
     }
   };
+
   const handleDeleteUser = async () => {
     setShowModal(false);
+    setUpdateUserError(null);
     try {
       dispatch(deleteUserStart());
-      const res = await fetch(`/api/user/delete/${currentUser._id}`, {
-        method: 'DELETE',
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        dispatch(deleteUserFailure(data.message));
+      const res = await axiosPrivate.delete(`user/delete/${currentUser._id}`);
+      if (res.status !== 200) {
+        dispatch(deleteUserFailure(res.message));
+        setUpdateUserError(res.message);
       } else {
-        dispatch(deleteUserSuccess(data));
+        dispatch(deleteUserSuccess());
+        navigate('/sigin-in'); // Redirect to home or login after deleting account
       }
     } catch (error) {
-      dispatch(deleteUserFailure(error.message));
+      const errormsg = error.response.data.message || "something went wrong "
+      dispatch(deleteUserFailure(errormsg));
+      setUpdateUserError(errormsg);
     }
   };
 
   const handleSignout = async () => {
+    setUpdateUserError(null);
     try {
-      const res = await fetch('/api/user/signout', {
-        method: 'POST',
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        console.log(data.message);
+      const res = await axiosPrivate.post(`user/signout`);
+      if (res.status !== 200) {
+        console.log(res.message);
+        setUpdateUserError(res.message);
       } else {
         dispatch(signoutSuccess());
+        navigate('/sign-in'); 
       }
-    } catch (error) {
-      console.log(error.message);
+    } catch (error) {      
+      const errormsg = error.response.data.message || "something went wrong "
+      setUpdateUserError(errormsg);
     }
   };
+
   return (
-    <div className='max-w-lg mx-auto p-3 w-full'>
+    <div className='max-w-lg pb-8 mx-auto p-3 w-full'>
       <h1 className='my-7 text-center font-semibold text-3xl'>Profile</h1>
       <form onSubmit={handleSubmit} className='flex flex-col gap-4'>
         <input
@@ -193,9 +189,7 @@ export default function DashProfile() {
                   left: 0,
                 },
                 path: {
-                  stroke: `rgba(62, 152, 199, ${
-                    imageFileUploadProgress / 100
-                  })`,
+                  stroke: `rgba(62, 152, 199, ${imageFileUploadProgress / 100})`,
                 },
               }}
             />
@@ -253,7 +247,7 @@ export default function DashProfile() {
           </Link>
         )}
       </form>
-      <div className='text-red-500 flex justify-between mt-5'>
+      <div className='text-red-500 flex justify-between my-5'>
         <span onClick={() => setShowModal(true)} className='cursor-pointer'>
           Delete Account
         </span>
@@ -261,21 +255,18 @@ export default function DashProfile() {
           Sign Out
         </span>
       </div>
+      <div className="min-h-[60px]">
       {updateUserSuccess && (
-        <Alert color='success' className='mt-5'>
+        <Alert color='success'>
           {updateUserSuccess}
         </Alert>
       )}
       {updateUserError && (
-        <Alert color='failure' className='mt-5'>
+        <Alert color='failure'>
           {updateUserError}
         </Alert>
       )}
-      {error && (
-        <Alert color='failure' className='mt-5'>
-          {error}
-        </Alert>
-      )}
+      </div>
       <Modal
         show={showModal}
         onClose={() => setShowModal(false)}

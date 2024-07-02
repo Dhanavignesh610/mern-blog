@@ -3,9 +3,11 @@ import { useEffect, useState } from 'react';
 import { FaThumbsUp } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
 import { Button, Textarea } from 'flowbite-react';
-import { set } from 'mongoose';
+import axios from '../axiosAPI/axios';
+import useAxiosprivate from '../hooks/useAxiosprivate';
 
 export default function Comment({ comment, onLike, onEdit, onDelete }) {
+  const axiosPrivate = useAxiosprivate();
   const [user, setUser] = useState({});
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState(comment.content);
@@ -13,13 +15,12 @@ export default function Comment({ comment, onLike, onEdit, onDelete }) {
   useEffect(() => {
     const getUser = async () => {
       try {
-        const res = await fetch(`/api/user/${comment.userId}`);
-        const data = await res.json();
-        if (res.ok) {
-          setUser(data);
+      const res = await axios.get(`user/${comment.userId}`);
+      if (res.status === 200) {
+          setUser(res.data);
         }
       } catch (error) {
-        console.log(error.message);
+        console.log(error.response.message);
       }
     };
     getUser();
@@ -32,21 +33,15 @@ export default function Comment({ comment, onLike, onEdit, onDelete }) {
 
   const handleSave = async () => {
     try {
-      const res = await fetch(`/api/comment/editComment/${comment._id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          content: editedContent,
-        }),
+      const res = await axiosPrivate.put(`comment/editComment/${comment._id}`, {
+        content: editedContent,
       });
-      if (res.ok) {
+      if (res.status === 200) {
         setIsEditing(false);
         onEdit(comment, editedContent);
       }
-    } catch (error) {
-      console.log(error.message);
+    } catch (error) { 
+      console.log(error.response.message);
     }
   };
   return (

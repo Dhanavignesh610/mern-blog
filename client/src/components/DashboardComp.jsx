@@ -8,8 +8,10 @@ import {
 } from 'react-icons/hi';
 import { Button, Table } from 'flowbite-react';
 import { Link } from 'react-router-dom';
+import useAxiosprivate from '../hooks/useAxiosprivate';
 
 export default function DashboardComp() {
+  const axiosPrivate = useAxiosprivate()
   const [users, setUsers] = useState([]);
   const [comments, setComments] = useState([]);
   const [posts, setPosts] = useState([]);
@@ -23,41 +25,44 @@ export default function DashboardComp() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await fetch('/api/user/getusers?limit=5');
-        const data = await res.json();
-        if (res.ok) {
+        const res = await axiosPrivate.get(`user/getusers?limit=5`)
+        const data = res.data;
+        if (res.status === 200) {
           setUsers(data.users);
           setTotalUsers(data.totalUsers);
           setLastMonthUsers(data.lastMonthUsers);
         }
       } catch (error) {
-        console.log(error.message);
+        const errormsg = error.response.data.message || "something went wrong "
+        console.log(errormsg);
       }
     };
     const fetchPosts = async () => {
       try {
-        const res = await fetch('/api/post/getposts?limit=5');
-        const data = await res.json();
-        if (res.ok) {
+        const res = await axiosPrivate.get(`post/getposts?limit=5`);
+        const data = res.data
+        if (res.status === 200) {
           setPosts(data.posts);
           setTotalPosts(data.totalPosts);
           setLastMonthPosts(data.lastMonthPosts);
         }
       } catch (error) {
-        console.log(error.message);
+        const errormsg = error.response.data.message || "something went wrong "        
+        console.log(errormsg);
       }
     };
     const fetchComments = async () => {
       try {
-        const res = await fetch('/api/comment/getcomments?limit=5');
-        const data = await res.json();
-        if (res.ok) {
+        const res = await axiosPrivate.get(`comment/getcomments?limit=5`);
+        const data = res.data
+        if (res.status === 200) {
           setComments(data.comments);
           setTotalComments(data.totalComments);
           setLastMonthComments(data.lastMonthComments);
         }
       } catch (error) {
-        console.log(error.message);
+        const errormsg = error.response.data.message || "something went wrong "
+        console.log(errormsg);
       }
     };
     if (currentUser.isAdmin) {
@@ -67,7 +72,7 @@ export default function DashboardComp() {
     }
   }, [currentUser]);
   return (
-    <div className='p-3 md:mx-auto'>
+    <div className='p-3 pb-8 pt-4 md:mx-auto'>
       <div className='flex-wrap flex gap-4 justify-center'>
         <div className='flex flex-col p-3 dark:bg-slate-800 gap-4 md:w-72 w-full rounded-md shadow-md'>
           <div className='flex justify-between'>

@@ -1,5 +1,4 @@
 import { Alert, Button, FileInput, Select, TextInput } from 'flowbite-react';
-import 'react-quill/dist/quill.snow.css';
 import {
   getDownloadURL,
   getStorage,
@@ -7,22 +6,34 @@ import {
   uploadBytesResumable,
 } from 'firebase/storage';
 import { app } from '../firebase';
-import { useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import JoditEditor from 'jodit-react';
+import useAxiosprivate from '../hooks/useAxiosprivate';
+import '../styles/jodit-dark-theme.css'; // Import custom CSS
+import debounce from 'lodash.debounce';
 
 export default function CreatePost() {
+  const axiosPrivate = useAxiosprivate();
   const [file, setFile] = useState(null);
   const [imageUploadProgress, setImageUploadProgress] = useState(null);
   const [imageUploadError, setImageUploadError] = useState(null);
   const {currentUser} = useSelector((state)=> state.user)
+  const {theme} = useSelector((state)=> state.theme)
   const [formData, setFormData] = useState({author:currentUser.username});
   const [publishError, setPublishError] = useState(null);
   const navigate = useNavigate();
   const editor = useRef(null);
+  const contentRef = useRef(null);
+
+  useEffect(() => {
+    if (editor.current) {
+      editor.current.focus();
+    }
+  }, [editor]);
 
   const handleUpdloadImage = async () => {
     try {
@@ -63,29 +74,64 @@ export default function CreatePost() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch('/api/post/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setPublishError(data.message);
-        return;
+      const res = await axiosPrivate.post(`post/create`, formData);  
+      const savedPost = res.data;
+      if (res.status !== 201) {
+        setPublishError(savedPost.message); 
+      } else {
+          setPublishError(null);
+          navigate(`/post/${savedPost.slug}`);
       }
-
-      if (res.ok) {
-        setPublishError(null);
-        navigate(`/post/${data.slug}`);
-      }
-    } catch (error) {
-      setPublishError('Something went wrong');
+  
+    } catch (error) {      
+      const errormsg = error.response.data.message || "something went wrong "
+      setPublishError(errormsg);
     }
   };
+
+  const handleContentChange = debounce((newContent) => {
+    setFormData((prevData) => ({ ...prevData, content: newContent }));
+    contentRef.current = newContent;
+  }, 300);  
+
+  const config = useMemo(
+    () => ({
+        zIndex: 0,
+        readonly: false,
+        activeButtonsInReadOnly: ['source', 'fullsize', 'print', 'about'],
+        toolbarButtonSize: 'middle',
+        theme: theme == 'dark' ? 'dark' : 'default',
+        enableDragAndDropFileToEditor: true,
+        saveModeInCookie: false,
+        spellcheck: true,
+        editorCssClass: false,
+        triggerChangeEvent: true,
+        height: 450,
+        direction: 'ltr',
+        language: 'pt_BR',
+        debugLanguage: false,
+        i18n: 'en',
+        tabIndex: -1,
+        toolbar: true,
+        enter: 'P',
+        useSplitMode: false,
+        colorPickerDefaultTab: 'background',
+        imageDefaultWidth: 100,
+        removeButtons: ['about', 'print', 'file'],
+        disablePlugins: ['paste', 'stat'],
+        events: {},
+        textIcons: false,
+        uploader: {
+            insertImageAsBase64URI: true,
+        },
+        placeholder: '',
+        showXPathInStatusbar: false,
+    }),
+    [theme]
+)
+
   return (
-    <div className='p-3 max-w-3xl mx-auto min-h-screen'>
+    <div className='p-3 max-w-3xl pb-10 mx-auto min-h-screen'>
       <h1 className='text-center text-3xl my-7 font-semibold orbitron'>Create a post</h1>
       <p>{currentUser.username}</p>
       <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
@@ -152,9 +198,9 @@ export default function CreatePost() {
 
       <JoditEditor
 			ref={editor}
-			value={formData.content}  
-			tabIndex={1}
-      onChange={(newContent) => setFormData({ ...formData, content: newContent })}
+      value={contentRef.current}
+      config={config}
+      onChange={handleContentChange}
 		/>
         <Button type='submit' gradientDuoTone='purpleToPink'>
           Publish

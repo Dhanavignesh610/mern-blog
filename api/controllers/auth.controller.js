@@ -27,7 +27,7 @@ export const signup = async (req, res, next) => {
 
   try {
     await newUser.save();
-    res.json('Signup successful');
+    res.status(200).json('Signup successful');
   } catch (error) {
     next(error);
   }
@@ -49,20 +49,20 @@ export const signin = async (req, res, next) => {
     if (!validPassword) {
       return next(errorHandler(400, 'Invalid password'));
     }
-    const token = jwt.sign(
+    const accessToken = jwt.sign(
       { id: validUser._id, isAdmin: validUser.isAdmin },
-      process.env.JWT_SECRET
+      process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10s' }
     );
-
+    const refreshToken  = jwt.sign(
+      { id: validUser._id, isAdmin: validUser.isAdmin },
+      process.env.REFRESH_TOKEN_SECRET
+      , { expiresIn: '1d' }
+    );
+  
     const { password: pass, ...rest } = validUser._doc;
-
-    res
-      .status(200)
-      .cookie('access_token', token, {
-        httpOnly: true,
-      })
-      .json(rest);
-  } catch (error) {
+     res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true, sameSite: 'None', maxAge: 24 * 60 * 60 * 1000 });
+     res.status(200).json({user:rest,accessToken});
+  } catch (error) {  
     next(error);
   }
 };
@@ -70,46 +70,55 @@ export const signin = async (req, res, next) => {
 export const google = async (req, res, next) => {
   const { email, name, googlePhotoUrl } = req.body;
   try {
-    const user = await User.findOne({ email });
-    if (user) {
-      const token = jwt.sign(
-        { id: user._id, isAdmin: user.isAdmin },
-        process.env.JWT_SECRET
+    const existUser = await User.findOne({ email });
+    if (existUser) {
+      const accessToken = jwt.sign(
+        { id: existUser._id, isAdmin: existUser.isAdmin },
+        process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10s' }
       );
-      const { password, ...rest } = user._doc;
-      res
-        .status(200)
-        .cookie('access_token', token, {
-          httpOnly: true,
-        })
-        .json(rest);
+      const refreshToken  = jwt.sign(
+        { id: existUser._id, isAdmin: existUser.isAdmin },
+        process.env.REFRESH_TOKEN_SECRET
+        , { expiresIn: '1d' }
+      );
+      const { password, ...rest } = existUser._doc;
+      res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true, sameSite: 'None', maxAge: 24 * 60 * 60 * 1000 });
+      res.status(200).json({user:rest,accessToken});
     } else {
       const generatedPassword =
         Math.random().toString(36).slice(-8) +
         Math.random().toString(36).slice(-8);
-      const hashedPassword = bcryptjs.hashSync(generatedPassword, 10);
+      const hashedPassword = bcryptjs.hashSync(generatedPassword, 10); 
       const newUser = new User({
         username:
           name.toLowerCase().split(' ').join('') +
           Math.random().toString(9).slice(-4),
         email,
         password: hashedPassword,
-        profilePicture: googlePhotoUrl,
-      });
+        profilePicture: googlePhotoUrl
+      });  
       await newUser.save();
-      const token = jwt.sign(
+
+      const accessToken = jwt.sign(
         { id: newUser._id, isAdmin: newUser.isAdmin },
-        process.env.JWT_SECRET
+        process.env.ACCESS_TOKEN_SECRET,
+        { expiresIn: '10s' }
       );
+      const refreshToken = jwt.sign(
+        { id: newUser._id, isAdmin: newUser.isAdmin },
+        process.env.REFRESH_TOKEN_SECRET,
+        { expiresIn: '1d' }
+      );
+
+      newUser.refreshToken = refreshToken;
+      await newUser.save();
       const { password, ...rest } = newUser._doc;
-      res
-        .status(200)
-        .cookie('access_token', token, {
-          httpOnly: true,
-        })
-        .json(rest);
+      res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true, sameSite: 'None', maxAge: 24 * 60 * 60 * 1000 });
+      res.status(200).json({user:rest,accessToken});
     }
   } catch (error) {
     next(error);
   }
 };
+
+

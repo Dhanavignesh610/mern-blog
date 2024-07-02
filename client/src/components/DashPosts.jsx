@@ -3,10 +3,12 @@ import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
-import { set } from 'mongoose';
+import useAxiosprivate from '../hooks/useAxiosprivate';
 
 export default function DashPosts() {
+  const axiosPrivate = useAxiosprivate()
   const { currentUser } = useSelector((state) => state.user);
+  const { theme } = useSelector((state) => state.theme);
   const [userPosts, setUserPosts] = useState([]);
   const [showMore, setShowMore] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -14,16 +16,17 @@ export default function DashPosts() {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const res = await fetch(`/api/post/getposts?userId=${currentUser._id}`);
-        const data = await res.json();
-        if (res.ok) {
+        const res = await axiosPrivate.get(`post/getposts?userId=${currentUser._id}`);
+        const data = res.data
+        if (res.status === 200) {
           setUserPosts(data.posts);
           if (data.posts.length < 9) {
             setShowMore(false);
           }
         }
       } catch (error) {
-        console.log(error.message);
+        const errormsg = error.response.data.message || "something went wrong "        
+        console.log(errormsg);
       }
     };
     if (currentUser.isAdmin) {
@@ -34,32 +37,26 @@ export default function DashPosts() {
   const handleShowMore = async () => {
     const startIndex = userPosts.length;
     try {
-      const res = await fetch(
-        `/api/post/getposts?userId=${currentUser._id}&startIndex=${startIndex}`
-      );
-      const data = await res.json();
-      if (res.ok) {
+      const res = await axiosPrivate.get(`post/getposts?userId=${currentUser._id}&startIndex=${startIndex}`);
+      const data = res.data
+      if (res.status === 200) {
         setUserPosts((prev) => [...prev, ...data.posts]);
         if (data.posts.length < 9) {
           setShowMore(false);
         }
       }
     } catch (error) {
-      console.log(error.message);
+      const errormsg = error.response.data.message || "something went wrong "        
+      console.log(errormsg);
     }
   };
 
   const handleDeletePost = async () => {
     setShowModal(false);
     try {
-      const res = await fetch(
-        `/api/post/deletepost/${postIdToDelete}/${currentUser._id}`,
-        {
-          method: 'DELETE',
-        }
-      );            
-      const data = await res.json();
-      if (!res.ok) {
+      const res = await axiosPrivate.delete(`post/deletepost/${postIdToDelete}/${currentUser._id}`);
+        const data = res.data
+        if (res.status !== 200) {
         console.log(data.message);
       } else {
         setUserPosts((prev) =>
@@ -67,7 +64,8 @@ export default function DashPosts() {
         );
       }
     } catch (error) {
-      console.log(error.message);
+      const errormsg = error.response.data.message || "something went wrong "        
+      console.log(errormsg);
     }
   };
 
@@ -150,19 +148,20 @@ export default function DashPosts() {
         onClose={() => setShowModal(false)}
         popup
         size='md'
+        className={`${theme === 'dark' ? 'dark' : ''}`} 
       >
         <Modal.Header />
         <Modal.Body>
-          <div className='text-center'>
+          <div className='text-center bg-dark'>
             <HiOutlineExclamationCircle className='h-14 w-14 text-gray-400 dark:text-gray-200 mb-4 mx-auto' />
-            <h3 className='mb-5 text-lg text-gray-500 dark:text-gray-400'>
+            <h3 className='mb-5 text-lg text-gray-500 dark:text-gray-200'>
               Are you sure you want to delete this post?
             </h3>
             <div className='flex justify-center gap-4'>
               <Button color='failure' onClick={handleDeletePost}>
                 Yes, I'm sure
               </Button>
-              <Button color='gray' onClick={() => setShowModal(false)}>
+              <Button color='gray' className='dark:text-gray-200 dark:border-gray-300' onClick={() => setShowModal(false)}>
                 No, cancel
               </Button>
             </div>

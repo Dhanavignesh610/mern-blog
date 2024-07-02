@@ -1,6 +1,7 @@
 import bcryptjs from 'bcryptjs';
 import { errorHandler } from '../utils/error.js';
 import User from '../models/user.model.js';
+import jwt from 'jsonwebtoken';
 
 export const test = (req, res) => {
   res.json({ message: 'API is working!' });
@@ -47,7 +48,9 @@ export const updateUser = async (req, res, next) => {
       },
       { new: true }
     );
+  
     const { password, ...rest } = updatedUser._doc;
+    
     res.status(200).json(rest);
   } catch (error) {
     next(error);
@@ -55,7 +58,7 @@ export const updateUser = async (req, res, next) => {
 };
 
 export const deleteUser = async (req, res, next) => {
-  if (!req.user.isAdmin && req.user.id !== req.params.userId) {
+  if (req.user.isAdmin && req.user.id !== req.params.userId) {
     return next(errorHandler(403, 'You are not allowed to delete this user'));
   }
   try {
@@ -66,16 +69,6 @@ export const deleteUser = async (req, res, next) => {
   }
 };
 
-export const signout = (req, res, next) => {
-  try {
-    res
-      .clearCookie('access_token')
-      .status(200)
-      .json('User has been signed out');
-  } catch (error) {
-    next(error);
-  }
-};
 
 export const getUsers = async (req, res, next) => {
   if (!req.user.isAdmin) {
@@ -127,6 +120,15 @@ export const getUser = async (req, res, next) => {
     }
     const { password, ...rest } = user._doc;
     res.status(200).json(rest);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const signout = (req, res, next) => {
+  try { 
+    res.clearCookie('refreshToken', { httpOnly: true, secure: true, sameSite: 'None', path: '/'  });
+    res.status(200).json('Logged out successfully');
   } catch (error) {
     next(error);
   }

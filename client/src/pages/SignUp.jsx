@@ -2,6 +2,7 @@ import { Alert, Button, Label, Spinner, TextInput } from "flowbite-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import OAuth from "../components/OAuth";
+import axios from "../axiosAPI/axios";
 
 export default function SignUp() {
   const [formData, setFormData] = useState({});
@@ -19,21 +20,17 @@ export default function SignUp() {
     try {
       setLoading(true);
       setErrorMessage(null);
-      const res = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      const data = await res.json();
-      if (data.success === false) {
+      const res = await axios.post(`auth/signup`, formData);
+      const data = res.data
+      setLoading(false);
+      if (res.status === 200) {
+        navigate("/sign-in");
+      }else{
         return setErrorMessage(data.message);
       }
-      setLoading(false);
-      if (res.ok) {
-        navigate("/sign-in");
-      }
     } catch (error) {
-      setErrorMessage(error.message);
+      const errormsg = error.response.data.message || 'Something went wrong'
+      setErrorMessage(errormsg);
       setLoading(false);
     }
   };
@@ -43,11 +40,11 @@ export default function SignUp() {
         {/* left */}
         <div className="flex-1">
           <Link to="/" className="font-bold dark:text-white text-4xl">
-            <span className="px-2 py-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-transparent bg-clip-text">
+            <span className="pr-2 bg-gradient-to-r orbitron from-indigo-500 via-purple-500 to-pink-500 text-transparent bg-clip-text">
               Techbytes
             </span>
           </Link>
-          <p className="text-sm mt-5">
+          <p className="text-sm mt-4">
             Exploring the latest trends and innovations in technology.
           </p>
         </div>
@@ -82,7 +79,7 @@ export default function SignUp() {
             <Button
               gradientDuoTone="purpleToPink"
               type="submit"
-              disabled={loading}
+              disabled={loading || errorMessage}
             >
               {loading ? (
                 <>

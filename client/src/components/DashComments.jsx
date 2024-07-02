@@ -2,10 +2,12 @@ import { Modal, Table, Button } from 'flowbite-react';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
-import { FaCheck, FaTimes } from 'react-icons/fa';
+import useAxiosprivate from '../hooks/useAxiosprivate';
 
 export default function DashComments() {
+  const axiosPrivate = useAxiosprivate()
   const { currentUser } = useSelector((state) => state.user);
+  const { theme } = useSelector((state) => state.theme);
   const [comments, setComments] = useState([]);
   const [showMore, setShowMore] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -13,16 +15,17 @@ export default function DashComments() {
   useEffect(() => {
     const fetchComments = async () => {
       try {
-        const res = await fetch(`/api/comment/getcomments`);
-        const data = await res.json();
-        if (res.ok) {
+        const res = await axiosPrivate.get(`comment/getcomments`);
+        const data = res.data
+        if (res.status === 200) {
           setComments(data.comments);
           if (data.comments.length < 9) {
             setShowMore(false);
           }
         }
       } catch (error) {
-        console.log(error.message);
+        const errormsg = error.response.data.message || "something went wrong "        
+        console.log(errormsg);
       }
     };
     if (currentUser.isAdmin) {
@@ -33,32 +36,26 @@ export default function DashComments() {
   const handleShowMore = async () => {
     const startIndex = comments.length;
     try {
-      const res = await fetch(
-        `/api/comment/getcomments?startIndex=${startIndex}`
-      );
-      const data = await res.json();
-      if (res.ok) {
+      const res = await axiosPrivate.get(`comment/getcomments?startIndex=${startIndex}`);
+      const data = res.data
+      if (res.status === 200) {
         setComments((prev) => [...prev, ...data.comments]);
         if (data.comments.length < 9) {
           setShowMore(false);
         }
       }
     } catch (error) {
-      console.log(error.message);
+      const errormsg = error.response.data.message || "something went wrong "        
+      console.log(errormsg);
     }
   };
 
   const handleDeleteComment = async () => {
     setShowModal(false);
     try {
-      const res = await fetch(
-        `/api/comment/deleteComment/${commentIdToDelete}`,
-        {
-          method: 'DELETE',
-        }
-      );
-      const data = await res.json();
-      if (res.ok) {
+      const res = await axiosPrivate.delete(`comment/deleteComment/${commentIdToDelete}`);
+      const data = res.data
+      if (res.status === 200) {
         setComments((prev) =>
           prev.filter((comment) => comment._id !== commentIdToDelete)
         );
@@ -67,7 +64,8 @@ export default function DashComments() {
         console.log(data.message);
       }
     } catch (error) {
-      console.log(error.message);
+      const errormsg = error.response.data.message || "something went wrong "        
+      console.log(errormsg);
     }
   };
 
@@ -126,19 +124,20 @@ export default function DashComments() {
         onClose={() => setShowModal(false)}
         popup
         size='md'
+        className={`${theme === 'dark' ? 'dark' : ''}`} 
       >
         <Modal.Header />
         <Modal.Body>
           <div className='text-center'>
             <HiOutlineExclamationCircle className='h-14 w-14 text-gray-400 dark:text-gray-200 mb-4 mx-auto' />
-            <h3 className='mb-5 text-lg text-gray-500 dark:text-gray-400'>
+            <h3 className='mb-5 text-lg text-gray-500 dark:text-gray-200'>
               Are you sure you want to delete this comment?
             </h3>
             <div className='flex justify-center gap-4'>
               <Button color='failure' onClick={handleDeleteComment}>
                 Yes, I'm sure
               </Button>
-              <Button color='gray' onClick={() => setShowModal(false)}>
+              <Button color='gray' className='dark:text-gray-200 dark:border-gray-300' onClick={() => setShowModal(false)}>
                 No, cancel
               </Button>
             </div>

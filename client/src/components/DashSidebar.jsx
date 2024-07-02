@@ -27,17 +27,16 @@ export default function DashSidebar() {
   }, [location.search]);
   const handleSignout = async () => {
     try {
-      const res = await fetch('/api/user/signout', {
-        method: 'POST',
-      });
-      const data = await res.json();
-      if (!res.ok) {
+      const res = await axiosPrivate.post(`user/signout`);
+      const data = res.data
+      if (res.status !== 200) {
         console.log(data.message);
       } else {
         dispatch(signoutSuccess());
       }
     } catch (error) {
-      console.log(error.message);
+      const errormsg = error.response.data.message || "something went wrong "        
+      console.log(errormsg);
     }
   };
   return (

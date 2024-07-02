@@ -3,9 +3,12 @@ import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
 import { FaCheck, FaTimes } from 'react-icons/fa';
+import useAxiosprivate from '../hooks/useAxiosprivate';
 
 export default function DashUsers() {
+  const axiosPrivate = useAxiosprivate()
   const { currentUser } = useSelector((state) => state.user);
+  const { theme } = useSelector((state) => state.theme);
   const [users, setUsers] = useState([]);
   const [showMore, setShowMore] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -13,16 +16,17 @@ export default function DashUsers() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await fetch(`/api/user/getusers`);
-        const data = await res.json();
-        if (res.ok) {
+        const res = await axiosPrivate.get(`user/getusers`);
+        const data = res.data
+        if (res.status === 200) {
           setUsers(data.users);
           if (data.users.length < 9) {
             setShowMore(false);
           }
         }
       } catch (error) {
-        console.log(error.message);
+        const errormsg = error.response.data.message || "something went wrong "        
+        console.log(errormsg);
       }
     };
     if (currentUser.isAdmin) {
@@ -33,33 +37,33 @@ export default function DashUsers() {
   const handleShowMore = async () => {
     const startIndex = users.length;
     try {
-      const res = await fetch(`/api/user/getusers?startIndex=${startIndex}`);
-      const data = await res.json();
-      if (res.ok) {
+      const res = await axiosPrivate.get(`user/getusers?startIndex=${startIndex}`);
+      const data = res.data
+      if (res.status === 200) {
         setUsers((prev) => [...prev, ...data.users]);
         if (data.users.length < 9) {
           setShowMore(false);
         }
       }
     } catch (error) {
-      console.log(error.message);
+      const errormsg = error.response.data.message || "something went wrong "        
+      console.log(errormsg);
     }
   };
 
   const handleDeleteUser = async () => {
     try {
-        const res = await fetch(`/api/user/delete/${userIdToDelete}`, {
-            method: 'DELETE',
-        });
-        const data = await res.json();
-        if (res.ok) {
+        const res = await axiosPrivate.delete(`user/delete/${userIdToDelete}`);
+        const data = res.data
+        if (res.status === 200) {
             setUsers((prev) => prev.filter((user) => user._id !== userIdToDelete));
             setShowModal(false);
         } else {
             console.log(data.message);
         }
     } catch (error) {
-        console.log(error.message);
+      const errormsg = error.response.data.message || "something went wrong "        
+      console.log(errormsg);
     }
   };
 
@@ -129,20 +133,21 @@ export default function DashUsers() {
         show={showModal}
         onClose={() => setShowModal(false)}
         popup
-        size='md'
+        size='md'        
+        className={`${theme === 'dark' ? 'dark' : ''}`} 
       >
         <Modal.Header />
         <Modal.Body>
           <div className='text-center'>
             <HiOutlineExclamationCircle className='h-14 w-14 text-gray-400 dark:text-gray-200 mb-4 mx-auto' />
-            <h3 className='mb-5 text-lg text-gray-500 dark:text-gray-400'>
+            <h3 className='mb-5 text-lg text-gray-500 dark:text-gray-200'>
               Are you sure you want to delete this user?
             </h3>
             <div className='flex justify-center gap-4'>
               <Button color='failure' onClick={handleDeleteUser}>
                 Yes, I'm sure
               </Button>
-              <Button color='gray' onClick={() => setShowModal(false)}>
+              <Button color='gray' className='dark:text-gray-200 dark:border-gray-300' onClick={() => setShowModal(false)}>
                 No, cancel
               </Button>
             </div>

@@ -8,7 +8,7 @@ export default function FooterCom() {
   return (
     <Footer
       container
-      className=" border-gray-200 dark:border-gray-700 mt-8 rounded-none"
+      className=" border-gray-200 dark:border-gray-700 rounded-none"
       style={{ borderTopWidth: "2px" }}
     >
       <div className="w-full max-w-7xl px-2 mx-auto">
@@ -21,7 +21,7 @@ export default function FooterCom() {
               {/* <span className="py-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-transparent bg-clip-text">
                 Techbytes
               </span>  */}
-              <span className="py-1">
+              <span className="py-1 orbitron">
                 Techbytes
               </span> 
             </Link>
@@ -34,32 +34,31 @@ export default function FooterCom() {
               <Footer.Title title="Quick Links" />
               <Footer.LinkGroup col className="pb-4">
                 <Footer.Link href="/">HOME</Footer.Link>
-                <Footer.Link href="/about">AI</Footer.Link>
-                <Footer.Link href="#">BLOCKCHAIN</Footer.Link>
-                <Footer.Link href="/">BIG DATA</Footer.Link>
+                <Footer.Link href="/category/ai">AI</Footer.Link>
+                <Footer.Link href="/category/blockchain">BLOCKCHAIN</Footer.Link>
+                <Footer.Link href="/category/security">SECURITY</Footer.Link>
               </Footer.LinkGroup>  
               <Footer.LinkGroup col className="sm:hidden">
-            <Footer.Link href="/about">CLOUDS</Footer.Link>
-            <Footer.Link href="#">WEB APPS</Footer.Link>
-            <Footer.Link href="#">IOT</Footer.Link>
-            <Footer.Link href="/">TRENDS</Footer.Link>
+            <Footer.Link href="/category/clouds">CLOUDS</Footer.Link>
+            <Footer.Link href="/category/webapps">WEB APPS</Footer.Link>
+            <Footer.Link href="/category/iot">IOT</Footer.Link>
+            <Footer.Link href="/category/trends">TRENDS</Footer.Link>
             </Footer.LinkGroup>            
             </div>
             <div className="hidden sm:block ">
             <Footer.Title title="Quick Links" className="invisible"/>
             <Footer.LinkGroup col>
-            <Footer.Link href="/about">CLOUDS</Footer.Link>
-            <Footer.Link href="#">WEB APPs</Footer.Link>
-            <Footer.Link href="#">IOT</Footer.Link>
-            <Footer.Link href="/">TRENDS</Footer.Link>
+            <Footer.Link href="/category/clouds">CLOUDS</Footer.Link>
+            <Footer.Link href="/category/webapps">WEB APPs</Footer.Link>
+            <Footer.Link href="/category/iot">IOT</Footer.Link>
+            <Footer.Link href="/category/trends">TRENDS</Footer.Link>
             </Footer.LinkGroup>
             </div>
             <div>
               <Footer.Title title="Follow us" />
               <Footer.LinkGroup col>
                 <Footer.Link
-                  href=""
-                  target="_blank"
+                  href="/ "
                   rel="noopener noreferrer"
                 >
                   Github
@@ -89,7 +88,7 @@ export default function FooterCom() {
           />
           <div className="flex gap-6 sm:mt-0 mt-4 sm:justify-center">
             <Footer.Icon
-              href="https://github.com/dhanavignesh610"
+              href=""
               icon={BsGithub}
             />
             <Footer.Icon onClick={() => {}} icon={BsFacebook} />

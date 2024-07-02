@@ -47,3 +47,20 @@ body {
   min-height: 180px !important;
   height:400px !important ;
 }
+/* styles/jodit-dark-theme.css */
+
+.modal.dark .modal-content {
+  background-color: #1a202c; /* Dark background color */
+  color: #ffffff; /* Light text color */
+}
+
+.modal.dark .text-gray-500 {
+  color: #ffffff; /* Adjust text color in dark mode */
+}
+
+.modal.dark .text-gray-400 {
+  color: #718096; /* Adjust text color in dark mode */
+}
+
+/* Other dark theme styles */
+

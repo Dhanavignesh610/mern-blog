@@ -1,5 +1,4 @@
 import { Alert, Button, FileInput, Select, TextInput } from 'flowbite-react';
-import 'react-quill/dist/quill.snow.css';
 import {
   getDownloadURL,
   getStorage,
@@ -7,44 +6,55 @@ import {
   uploadBytesResumable,
 } from 'firebase/storage';
 import { app } from '../firebase';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import JoditEditor from 'jodit-react';
+import axios from '../axiosAPI/axios';
+import useAxiosprivate from '../hooks/useAxiosprivate';
+import '../styles/jodit-dark-theme.css'; // Import custom CSS
+import debounce from 'lodash.debounce';
 
 export default function UpdatePost() {
   const [file, setFile] = useState(null);
-  const [imageUploadProgress, setImageUploadProgress] = useState(null);
+  const [imageUploadProgress, setImageUploadProgress] = useState(null); 
   const [imageUploadError, setImageUploadError] = useState(null);
-  const [formData, setFormData] = useState({  });
+  const [formData, setFormData] = useState({   
+    title: '',
+    category: 'uncategorized',
+    image: '',
+    content: '', });
   const [publishError, setPublishError] = useState(null);
   const { postId } = useParams();
   const { currentUser } = useSelector((state) => state.user);
+  const {theme} = useSelector((state) => state.theme);
   const navigate = useNavigate()
   const editor = useRef(null);
-
+  const axiosPrivate = useAxiosprivate()
+  const contentRef = useRef(formData.content);
+  
   useEffect(() => {
     try {
       const fetchPost = async () => {
-        const res = await fetch(`/api/post/getposts?postId=${postId}`);
-        const data = await res.json();
-        if (!res.ok) {
-          setPublishError(data.message);
+        const res = await axios.get(`post/getposts?postId=${postId}`);  
+        if (res.status != 200) {
+          setPublishError(res.message);
           return;
-        }
-        if (res.ok) {
+        }else{
           setPublishError(null);
-          setFormData(data.posts[0]); 
+          setFormData(res.data.posts[0]); 
+          contentRef.current = res.data.posts[0].content;
         }
       };
-
       fetchPost();
     } catch (error) {
-      console.log(error.message);
-    }
+      const errormsg = error.response.data.message || error.message || 'Something went wrong';      
+      console.log(errormsg);
+     }
   }, [postId]);
+
   const handleUpdloadImage = async () => {
     try {
       if (!file) {
@@ -81,32 +91,67 @@ export default function UpdatePost() {
       console.log(error);
     }
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch(`/api/post/updatepost/${formData._id}/${currentUser._id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setPublishError(data.message);
+      const res = await axiosPrivate.put(`post/updatepost/${formData._id}/${currentUser._id}`, formData);
+      if (res.status !== 200) {
+        setPublishError(res.message);
         return;
-      }
-
-      if (res.ok) {
+      }else{
         setPublishError(null);
-        navigate(`/post/${data.slug}`);
+        navigate(`/post/${res.data.slug}`)
       }
     } catch (error) {
-      setPublishError('Something went wrong');
+      const errormsg = error.response.data.message || 'Something went wrong'
+      setPublishError(errormsg);
     }
   };
+
+  const config = useMemo(
+    () => ({
+        zIndex: 0,
+        readonly: false,
+        activeButtonsInReadOnly: ['source', 'fullsize', 'print', 'about'],
+        toolbarButtonSize: 'middle',
+        theme: theme == 'dark' ? 'dark' : 'default',
+        enableDragAndDropFileToEditor: true,
+        saveModeInCookie: false,
+        spellcheck: true,
+        editorCssClass: false,
+        triggerChangeEvent: true,
+        height: 450,
+        direction: 'ltr',
+        language: 'pt_BR',
+        debugLanguage: false,
+        i18n: 'en',
+        tabIndex: -1,
+        toolbar: true,
+        enter: 'P',
+        useSplitMode: false,
+        colorPickerDefaultTab: 'background',
+        imageDefaultWidth: 100,
+        removeButtons: ['about', 'print', 'file'],
+        disablePlugins: ['paste', 'stat'],
+        events: {},
+        textIcons: false,
+        uploader: {
+            insertImageAsBase64URI: true,
+        },
+        placeholder: '',
+        showXPathInStatusbar: false,
+    }),
+    [theme]
+)
+
+const handleContentChange = debounce((newContent) => {
+  setFormData((prevData) => ({ ...prevData, content: newContent }));
+  contentRef.current = newContent;
+}, 300);
+
   return (
-    <div className='p-3 max-w-3xl mx-auto min-h-screen'>
+    <div className='p-3 max-w-3xl pb-10 mx-auto min-h-screen'>
       <h1 className='text-center text-3xl my-7 font-semibold orbitron'>Update post</h1>
       <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
         <div className='flex flex-col gap-4 sm:flex-row justify-between'>
@@ -170,14 +215,14 @@ export default function UpdatePost() {
             className='w-full h-72 object-cover'
           />
         )}
-
- <JoditEditor
-			ref={editor}
-			value={formData.content}
-			tabIndex={1} // tabIndex of textarea
-      onChange={(newContent) => setFormData({ ...formData, content: newContent })}
-		/>
-
+      {/* <div className={`editor-container ${theme === 'dark' ? 'jodit_dark' : ''}`}> */}
+      <JoditEditor
+      ref={editor}
+      value={contentRef.current}
+      config={config}
+      onChange={handleContentChange}
+      />
+      {/* </div> */}
         <Button type='submit' gradientDuoTone='purpleToPink'>
           Update post
         </Button>

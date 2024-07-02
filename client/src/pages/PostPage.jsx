@@ -1,11 +1,12 @@
 import { Button, Spinner } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import CallToAction from "../components/CallToAction";
 import CommentSection from "../components/CommentSection";
 import PostCard from "../components/PostCard";
+import useAxiosprivate from "../hooks/useAxiosprivate";
 
 export default function PostPage() {
+  const axiosPrivate = useAxiosprivate();
   const { postSlug } = useParams();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -15,18 +16,17 @@ export default function PostPage() {
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        setLoading(true);
-        const res = await fetch(`/api/post/getposts?slug=${postSlug}`);
-        const data = await res.json();
-        if (!res.ok) {
-          setError(true);
-          setLoading(false);
-          return;
-        }
-        if (res.ok) {
+        setLoading(true);  
+        const res = await axiosPrivate.get(`post/getposts?slug=${postSlug}`);
+        const data = res.data
+        if (res.status === 200) {
           setPost(data.posts[0]);
           setLoading(false);
           setError(false);
+        }else{
+          setError(true);
+          setLoading(false);
+          return;
         }
       } catch (error) {
         setError(true);
@@ -39,15 +39,16 @@ export default function PostPage() {
   useEffect(() => {
     try {
       const fetchRecentPosts = async () => {
-        const res = await fetch(`/api/post/getposts?limit=3`);
-        const data = await res.json();
-        if (res.ok) {
+        const res = await axiosPrivate.post(`post/getposts?limit=3`);
+        const data = res.data
+        if (res.status === 200) {
           setRecentPosts(data.posts);
         }
       };
       fetchRecentPosts();
     } catch (error) {
-      console.log(error.message);
+      const errormsg = error.response.data.message || "something went wrong "        
+      console.log(errormsg);
     }
   }, []);
 

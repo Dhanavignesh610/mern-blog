@@ -7,6 +7,8 @@ import postRoutes from './routes/post.route.js';
 import commentRoutes from './routes/comment.route.js';
 import cookieParser from 'cookie-parser';
 import path from 'path';
+import cors from 'cors';
+import { refreshToken } from './controllers/refresh.controller.js';
 
 dotenv.config();
 
@@ -26,12 +28,19 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
+const corsOptions = {
+  origin: 'http://localhost:5173', // Frontend URL
+  credentials: true, // This is required to send cookies
+};
+app.use(cors(corsOptions));
+
 app.listen(3000, () => {
   console.log('Server is running on port 3000!');
 });
 
 app.use('/api/user', userRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/refresh',refreshToken );
 app.use('/api/post', postRoutes);
 app.use('/api/comment', commentRoutes);
 

@@ -1,21 +1,27 @@
-import { Link } from 'react-router-dom';
-import CallToAction from '../components/CallToAction';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import PostCard from '../components/PostCard';
-import cimage from '../assets/scrn.png'
 import HeroSection from './heroSection';
+import axios from '../axiosAPI/axios';
+
 
 export default function Home() {
-  const [posts, setPosts] = useState([]); 
-  const [filteredPosts, setFilteredPosts] = useState([]);
+  const [posts, setPosts] = useState([]);    
+  const [filteredPosts, setFilteredPosts] = useState([]);    
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const fetchPosts = async () => {
-      const res = await fetch('/api/post/getPosts');
-      const data = await res.json();
-      console.log(data);
-      setPosts(data.posts);
-      filterPostsByCategory(data.posts)
+   try {
+    const res = await axios.get('/post/getPosts');
+    setPosts(res.data.posts);
+    filterPostsByCategory(res.data.posts)
+   } catch (error) {
+    const errormsg = error.response.data.message || "something went wrong "
+    console.error(errormsg);
+    navigate('/sign-in', { state: { from: location }, replace: true });
+   }
     };
     fetchPosts();
   }, []);
@@ -31,10 +37,8 @@ export default function Home() {
       iot: [],
       trends: [],
     }; 
-    console.log(posts);
     posts.forEach(post => {
       if (categories.hasOwnProperty(post.category)) {
-        console.log(post);
         categories[post.category].push(post);
       }
     });
@@ -53,7 +57,6 @@ export default function Home() {
           ))}
         </div>
       </div>  
-      // ))
     );
   };
  

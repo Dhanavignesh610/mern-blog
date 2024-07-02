@@ -1,46 +1,49 @@
 import { Alert, Button, Spinner, TextInput } from 'flowbite-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
+  clearState,
   signInStart,
   signInSuccess,
   signInFailure,
 } from '../redux/user/userSlice';
 import OAuth from '../components/OAuth';
-
+import  {axiosPrivate}  from '../axiosAPI/axios';
 
 export default function SignIn() {
   const [formData, setFormData] = useState({});   
   const { loading, error: errorMessage } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+useEffect(() => {
+  dispatch(clearState()); 
+}, [])
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.email || !formData.password) {
       return dispatch(signInFailure('Please fill all the fields'));
     }
-    try {
-      dispatch(signInStart());
-      const res = await fetch('/api/auth/signin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-      const data = await res.json();
-      if (data.success === false) {
-        dispatch(signInFailure(data.message));
+    try {   
+      dispatch(signInStart());   
+      const res = await axiosPrivate.post(`auth/signin`, formData);
+      const { user, accessToken } = res.data;
+      user.accessToken = accessToken;
+      dispatch(signInSuccess(user));
+      navigate('/', { replace: true })
+    } catch (err) {
+      if (err.response) {
+        const errormsg = err.response.data.message || 'Something went wrong'
+        dispatch(signInFailure(errormsg));
+      } else {
+        dispatch(signInFailure(err.message));
       }
-
-      if (res.ok) {
-        dispatch(signInSuccess(data));
-        navigate('/');
-      }
-    } catch (error) {
-      dispatch(signInFailure(error.message));
     }
   };
   return (
@@ -49,11 +52,11 @@ export default function SignIn() {
         {/* left */}
         <div className='flex-1'>
           <Link to='/' className='font-bold dark:text-white text-4xl'>
-          <span className="px-2 py-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-transparent bg-clip-text">
+          <span className="pr-2 bg-gradient-to-r orbitron from-indigo-500 via-purple-500 to-pink-500 text-transparent bg-clip-text">
               Techbytes
             </span>
           </Link>
-          <p className='text-sm mt-5'>
+          <p className='text-sm mt-4'>
             Exploring the latest trends and innovations in technology
           </p>
         </div>
