@@ -37,19 +37,20 @@ export default function PostPage() {
   }, [postSlug]);
 
   useEffect(() => {
+    const fetchRecentPosts = async () => {
     try {
-      const fetchRecentPosts = async () => {
-        const res = await axiosPrivate.post(`post/getposts?limit=3`);
-        const data = res.data
-        if (res.status === 200) {
-          setRecentPosts(data.posts);
-        }
-      };
-      fetchRecentPosts();
-    } catch (error) {
+      const res = await axiosPrivate.get(`post/getposts?limit=3`);
+      const data = res.data
+      if (res.status === 200) {
+        setRecentPosts(data.posts);
+      }
+    }
+    catch (error) { 
       const errormsg = error.response.data.message || "something went wrong "        
       console.log(errormsg);
-    }
+    }  
+  }  
+  fetchRecentPosts();
   }, []);
 
   if (loading)

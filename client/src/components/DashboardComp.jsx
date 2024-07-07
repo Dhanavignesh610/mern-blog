@@ -72,7 +72,7 @@ export default function DashboardComp() {
     }
   }, [currentUser]);
   return (
-    <div className='p-3 pb-8 pt-4 md:mx-auto'>
+    <div className='p-3 pb-8 pt-5 md:mx-auto'>
       <div className='flex-wrap flex gap-4 justify-center'>
         <div className='flex flex-col p-3 dark:bg-slate-800 gap-4 md:w-72 w-full rounded-md shadow-md'>
           <div className='flex justify-between'>

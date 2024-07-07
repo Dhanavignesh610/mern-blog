@@ -13,8 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import JoditEditor from 'jodit-react';
 import useAxiosprivate from '../hooks/useAxiosprivate';
-import '../styles/jodit-dark-theme.css'; // Import custom CSS
-import debounce from 'lodash.debounce';
+import '../styles/jodit-dark-theme.css';
 
 export default function CreatePost() {
   const axiosPrivate = useAxiosprivate();
@@ -71,11 +70,13 @@ export default function CreatePost() {
       console.log(error);
     }
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const newFormData = { ...formData, content: contentRef.current };   
     try {
-      const res = await axiosPrivate.post(`post/create`, formData);  
-      const savedPost = res.data;
+      const res = await axiosPrivate.post(`post/create`, newFormData);  
+      const savedPost = res.data; 
       if (res.status !== 201) {
         setPublishError(savedPost.message); 
       } else {
@@ -89,10 +90,6 @@ export default function CreatePost() {
     }
   };
 
-  const handleContentChange = debounce((newContent) => {
-    setFormData((prevData) => ({ ...prevData, content: newContent }));
-    contentRef.current = newContent;
-  }, 300);  
 
   const config = useMemo(
     () => ({
@@ -131,7 +128,7 @@ export default function CreatePost() {
 )
 
   return (
-    <div className='p-3 max-w-3xl pb-10 mx-auto min-h-screen'>
+    <div className='p-3 max-w-3xl pb-16 mx-auto min-h-screen'>
       <h1 className='text-center text-3xl my-7 font-semibold orbitron'>Create a post</h1>
       <p>{currentUser.username}</p>
       <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
@@ -200,7 +197,9 @@ export default function CreatePost() {
 			ref={editor}
       value={contentRef.current}
       config={config}
-      onChange={handleContentChange}
+      onChange={(newContent) => {
+        contentRef.current = newContent;
+      }}
 		/>
         <Button type='submit' gradientDuoTone='purpleToPink'>
           Publish

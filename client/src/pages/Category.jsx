@@ -32,7 +32,7 @@ export default function Category() {
         fetchPosts();
       }, [type]);
   return (
-    <div className='max-w-6xl mx-auto flex flex-col gap-6'>
+    <div className='max-w-6xl mx-auto flex pb-4 flex-col gap-6'>
       <h1 className='text-3xl mt-10 p-3 orbitron uppercase text-black dark:text-white text-center max-w-2xl mx-auto lg:text-3xl'>
         {type}
       </h1>

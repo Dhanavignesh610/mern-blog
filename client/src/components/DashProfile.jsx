@@ -17,9 +17,7 @@ import {
   deleteUserStart,
   deleteUserSuccess,
   deleteUserFailure,
-  signoutSuccess,
-  updateAccessToken,
-  clearState,
+  signoutSuccess
 } from '../redux/user/userSlice';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
 import { Link, useNavigate } from 'react-router-dom';

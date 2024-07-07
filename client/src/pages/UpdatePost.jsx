@@ -14,8 +14,7 @@ import { useSelector } from 'react-redux';
 import JoditEditor from 'jodit-react';
 import axios from '../axiosAPI/axios';
 import useAxiosprivate from '../hooks/useAxiosprivate';
-import '../styles/jodit-dark-theme.css'; // Import custom CSS
-import debounce from 'lodash.debounce';
+import '../styles/jodit-dark-theme.css'; 
 
 export default function UpdatePost() {
   const [file, setFile] = useState(null);
@@ -94,20 +93,22 @@ export default function UpdatePost() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const updatedFormData = { ...formData, content: contentRef.current };  
     try {
-      const res = await axiosPrivate.put(`post/updatepost/${formData._id}/${currentUser._id}`, formData);
+      const res = await axiosPrivate.put(`post/updatepost/${updatedFormData._id}/${currentUser._id}`, updatedFormData);
       if (res.status !== 200) {
         setPublishError(res.message);
         return;
-      }else{
+      } else {
         setPublishError(null);
-        navigate(`/post/${res.data.slug}`)
+        navigate(`/post/${res.data.slug}`);
       }
     } catch (error) {
-      const errormsg = error.response.data.message || 'Something went wrong'
+      const errormsg = error.response?.data?.message || 'Something went wrong';
       setPublishError(errormsg);
     }
   };
+  
 
   const config = useMemo(
     () => ({
@@ -145,13 +146,8 @@ export default function UpdatePost() {
     [theme]
 )
 
-const handleContentChange = debounce((newContent) => {
-  setFormData((prevData) => ({ ...prevData, content: newContent }));
-  contentRef.current = newContent;
-}, 300);
-
   return (
-    <div className='p-3 max-w-3xl pb-10 mx-auto min-h-screen'>
+    <div className='p-3 max-w-3xl pb-16 mx-auto min-h-screen'>
       <h1 className='text-center text-3xl my-7 font-semibold orbitron'>Update post</h1>
       <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
         <div className='flex flex-col gap-4 sm:flex-row justify-between'>
@@ -215,14 +211,14 @@ const handleContentChange = debounce((newContent) => {
             className='w-full h-72 object-cover'
           />
         )}
-      {/* <div className={`editor-container ${theme === 'dark' ? 'jodit_dark' : ''}`}> */}
       <JoditEditor
       ref={editor}
       value={contentRef.current}
       config={config}
-      onChange={handleContentChange}
+      onChange={(newContent) => {
+        contentRef.current = newContent;
+      }}
       />
-      {/* </div> */}
         <Button type='submit' gradientDuoTone='purpleToPink'>
           Update post
         </Button>

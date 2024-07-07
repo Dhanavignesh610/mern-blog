@@ -30,7 +30,6 @@ export default function Home() {
     const categories = {
       ai: [],
       blockchain: [],
-      bigdata: [],
       security:[],
       clouds: [],
       webapps: [],
@@ -62,7 +61,7 @@ export default function Home() {
  
   return (
     <div  style={{ minHeight: `calc(100vh - 100px)` }}> 
-      <div className='xl:max-w-6xl lg:max-w-4xl md:max-w-[90%] p-5 sm:pt-8 mx-auto  flex flex-col gap-6'>
+      <div className='xl:max-w-6xl lg:max-w-4xl md:max-w-[90%] pt-5 pb-12 sm:pt-8 mx-auto  flex flex-col gap-6'>
       {posts && posts.length > 0 && (
       <div className='mb-2'>          
       <h2 className='text-3xl font-bold mb-5 mt-8 text-black dark:text-white lg:text-3xl orbitron'>Latest News</h2>
