@@ -60,7 +60,7 @@ export default function Search() {
     const { id, value } = e.target;
     setSidebarData((prevData) => ({
       ...prevData,
-      [id]: value || (id === 'category' ? 'all' : 'desc'),
+      [id]: value
     }));
   };
 
