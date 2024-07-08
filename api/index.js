@@ -29,10 +29,11 @@ app.use(express.json());
 app.use(cookieParser());
 
 const corsOptions = {
-  origin: 'http://localhost:5173', // Frontend URL
+  origin: ['http://localhost:5173', 'https://techbytes.onrender.com'], 
   credentials: true, // This is required to send cookies
 };
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); 
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

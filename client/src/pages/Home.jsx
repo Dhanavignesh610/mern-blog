@@ -17,7 +17,7 @@ export default function Home() {
     const res = await axios.get('/post/getPosts');
     setPosts(res.data.posts);
     filterPostsByCategory(res.data.posts)
-   } catch (error) {
+   } catch (error) { console.log(error);
     const errormsg = error.response.data.message || "something went wrong "
     console.error(errormsg);
     navigate('/sign-in', { state: { from: location }, replace: true });
