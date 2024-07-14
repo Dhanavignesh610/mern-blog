@@ -33,7 +33,7 @@ export default function DashboardComp() {
           setLastMonthUsers(data.lastMonthUsers);
         }
       } catch (error) {
-        const errormsg = error.response.data.message || "something went wrong "
+        const errormsg = error.response?.data?.message || "something went wrong "
         console.log(errormsg);
       }
     };
@@ -47,7 +47,7 @@ export default function DashboardComp() {
           setLastMonthPosts(data.lastMonthPosts);
         }
       } catch (error) {
-        const errormsg = error.response.data.message || "something went wrong "        
+        const errormsg = error.response?.data?.message || "something went wrong "        
         console.log(errormsg);
       }
     };
@@ -61,7 +61,7 @@ export default function DashboardComp() {
           setLastMonthComments(data.lastMonthComments);
         }
       } catch (error) {
-        const errormsg = error.response.data.message || "something went wrong "
+        const errormsg = error.response?.data?.message || "something went wrong "
         console.log(errormsg);
       }
     };

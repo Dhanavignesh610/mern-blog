@@ -4,28 +4,33 @@ import { useSelector } from 'react-redux';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
 import { FaCheck, FaTimes } from 'react-icons/fa';
 import useAxiosprivate from '../hooks/useAxiosprivate';
+import Pagination from './Pagination';
 
 export default function DashUsers() {
   const axiosPrivate = useAxiosprivate()
   const { currentUser } = useSelector((state) => state.user);
   const { theme } = useSelector((state) => state.theme);
+  const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState([]);
-  const [showMore, setShowMore] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const usersPerPage = 10;
   const [showModal, setShowModal] = useState(false);
   const [userIdToDelete, setUserIdToDelete] = useState('');
+
   useEffect(() => {
     const fetchUsers = async () => {
+      setLoading(true)
       try {
         const res = await axiosPrivate.get(`user/getusers`);
         const data = res.data
         if (res.status === 200) {
           setUsers(data.users);
-          if (data.users.length < 9) {
-            setShowMore(false);
-          }
+          setLoading(false)
+          setTotalPages(Math.ceil(data.users.length / usersPerPage))
         }
       } catch (error) {
-        const errormsg = error.response.data.message || "something went wrong "        
+        const errormsg = error.response?.data?.message || "something went wrong "        
         console.log(errormsg);
       }
     };
@@ -33,23 +38,6 @@ export default function DashUsers() {
       fetchUsers();
     }
   }, [currentUser._id]);
-
-  const handleShowMore = async () => {
-    const startIndex = users.length;
-    try {
-      const res = await axiosPrivate.get(`user/getusers?startIndex=${startIndex}`);
-      const data = res.data
-      if (res.status === 200) {
-        setUsers((prev) => [...prev, ...data.users]);
-        if (data.users.length < 9) {
-          setShowMore(false);
-        }
-      }
-    } catch (error) {
-      const errormsg = error.response.data.message || "something went wrong "        
-      console.log(errormsg);
-    }
-  };
 
   const handleDeleteUser = async () => {
     try {
@@ -62,14 +50,23 @@ export default function DashUsers() {
             console.log(data.message);
         }
     } catch (error) {
-      const errormsg = error.response.data.message || "something went wrong "        
+      const errormsg = error.response?.data?.message || "something went wrong "        
       console.log(errormsg);
     }
   };
 
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0}); 
+  };
+
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser)
+
   return (
     <div className='table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300 dark:scrollbar-track-slate-700 dark:scrollbar-thumb-slate-500'>
-      {currentUser.isAdmin && users.length > 0 ? (
+      {currentUser.isAdmin ? ( loading ? (
         <>
           <Table hoverable className='shadow-md'>
             <Table.Head>
@@ -80,7 +77,24 @@ export default function DashUsers() {
               <Table.HeadCell>Admin</Table.HeadCell>
               <Table.HeadCell>Delete</Table.HeadCell>
             </Table.Head>
-            {users.map((user) => (
+            </Table>
+            <div className="flex items-center justify-center min-h-[75vh]">
+            <p className='text-lg'>Loading...</p>
+           </div>
+        </>
+      ) :
+       (currentUsers.length > 0 ? (
+        <>
+          <Table hoverable className='shadow-md'>
+            <Table.Head>
+              <Table.HeadCell>Date created</Table.HeadCell>
+              <Table.HeadCell>User image</Table.HeadCell>
+              <Table.HeadCell>Username</Table.HeadCell>
+              <Table.HeadCell>Email</Table.HeadCell>
+              <Table.HeadCell>Admin</Table.HeadCell>
+              <Table.HeadCell>Delete</Table.HeadCell>
+            </Table.Head>
+            {currentUsers.map((user) => (
               <Table.Body className='divide-y' key={user._id}>
                 <Table.Row className='bg-white dark:border-gray-700 dark:bg-gray-800'>
                   <Table.Cell>
@@ -117,17 +131,17 @@ export default function DashUsers() {
               </Table.Body>
             ))}
           </Table>
-          {showMore && (
-            <button
-              onClick={handleShowMore}
-              className='w-full text-teal-500 self-center text-sm py-7'
-            >
-              Show more
-            </button>
+          {totalPages > 1 ? (
+             <Pagination onPaginationClick={handlePageChange} totalPages={totalPages} currentPage={currentPage}/>
+           ) : (
+           ''
           )}
         </>
       ) : (
         <p>You have no users yet!</p>
+       )
+      )) : (
+        <p>You are not authorized to view comments.</p>    
       )}
       <Modal
         show={showModal}

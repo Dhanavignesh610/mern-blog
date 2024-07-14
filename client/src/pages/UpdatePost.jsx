@@ -49,7 +49,7 @@ export default function UpdatePost() {
       };
       fetchPost();
     } catch (error) {
-      const errormsg = error.response.data.message || error.message || 'Something went wrong';      
+      const errormsg = error.response?.data?.message || error.message || 'Something went wrong';      
       console.log(errormsg);
      }
   }, [postId]);

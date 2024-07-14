@@ -8,23 +8,26 @@ export default function DashComments() {
   const axiosPrivate = useAxiosprivate()
   const { currentUser } = useSelector((state) => state.user);
   const { theme } = useSelector((state) => state.theme);
+  const [loading, setLoading] = useState(true);
   const [comments, setComments] = useState([]);
-  const [showMore, setShowMore] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const commentPerPage = 10;
   const [showModal, setShowModal] = useState(false);
   const [commentIdToDelete, setCommentIdToDelete] = useState('');
   useEffect(() => {
     const fetchComments = async () => {
+      setLoading(true)
       try {
         const res = await axiosPrivate.get(`comment/getcomments`);
         const data = res.data
         if (res.status === 200) {
           setComments(data.comments);
-          if (data.comments.length < 9) {
-            setShowMore(false);
-          }
+          setLoading(false)
+          setTotalPages(Math.ceil(data.comments.length / commentPerPage))
         }
       } catch (error) {
-        const errormsg = error.response.data.message || "something went wrong "        
+        const errormsg = error.response?.data?.message || "something went wrong "        
         console.log(errormsg);
       }
     };
@@ -32,23 +35,6 @@ export default function DashComments() {
       fetchComments();
     }
   }, [currentUser._id]);
-
-  const handleShowMore = async () => {
-    const startIndex = comments.length;
-    try {
-      const res = await axiosPrivate.get(`comment/getcomments?startIndex=${startIndex}`);
-      const data = res.data
-      if (res.status === 200) {
-        setComments((prev) => [...prev, ...data.comments]);
-        if (data.comments.length < 9) {
-          setShowMore(false);
-        }
-      }
-    } catch (error) {
-      const errormsg = error.response.data.message || "something went wrong "        
-      console.log(errormsg);
-    }
-  };
 
   const handleDeleteComment = async () => {
     setShowModal(false);
@@ -64,61 +50,88 @@ export default function DashComments() {
         console.log(data.message);
       }
     } catch (error) {
-      const errormsg = error.response.data.message || "something went wrong "        
+      const errormsg = error.response?.data?.message || "something went wrong "        
       console.log(errormsg);
     }
   };
 
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0}); 
+  };
+
+  const indexOfLastUser = currentPage * commentPerPage;
+  const indexOfFirstUser = indexOfLastUser - commentPerPage;
+  const currentComments = comments.slice(indexOfFirstUser, indexOfLastUser)
+
   return (
     <div className='table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300 dark:scrollbar-track-slate-700 dark:scrollbar-thumb-slate-500'>
-      {currentUser.isAdmin && comments.length > 0 ? (
+      { currentUser.isAdmin ? ( loading ? (
         <>
-          <Table hoverable className='shadow-md'>
-            <Table.Head>
-              <Table.HeadCell>Date updated</Table.HeadCell>
-              <Table.HeadCell>Comment content</Table.HeadCell>
-              <Table.HeadCell>Number of likes</Table.HeadCell>
-              <Table.HeadCell>PostId</Table.HeadCell>
-              <Table.HeadCell>UserId</Table.HeadCell>
-              <Table.HeadCell>Delete</Table.HeadCell>
-            </Table.Head>
-            {comments.map((comment) => (
-              <Table.Body className='divide-y' key={comment._id}>
-                <Table.Row className='bg-white dark:border-gray-700 dark:bg-gray-800'>
-                  <Table.Cell>
-                    {new Date(comment.updatedAt).toLocaleDateString()}
-                  </Table.Cell>
-                  <Table.Cell>{comment.content}</Table.Cell>
-                  <Table.Cell>{comment.numberOfLikes}</Table.Cell>
-                  <Table.Cell>{comment.postId}</Table.Cell>
-                  <Table.Cell>{comment.userId}</Table.Cell>
-                  <Table.Cell>
-                    <span
-                      onClick={() => {
-                        setShowModal(true);
-                        setCommentIdToDelete(comment._id);
-                      }}
-                      className='font-medium text-red-500 hover:underline cursor-pointer'
-                    >
-                      Delete
-                    </span>
-                  </Table.Cell>
-                </Table.Row>
-              </Table.Body>
-            ))}
+        <Table hoverable className='shadow-md'>
+          <Table.Head>
+            <Table.HeadCell>Date updated</Table.HeadCell>
+            <Table.HeadCell>Comment content</Table.HeadCell>
+            <Table.HeadCell>Number of likes</Table.HeadCell>
+            <Table.HeadCell>PostId</Table.HeadCell>
+            <Table.HeadCell>UserId</Table.HeadCell>
+            <Table.HeadCell>Delete</Table.HeadCell>
+          </Table.Head>
           </Table>
-          {showMore && (
-            <button
-              onClick={handleShowMore}
-              className='w-full text-teal-500 self-center text-sm py-7'
-            >
-              Show more
-            </button>
-          )}
-        </>
+          <div className="flex items-center justify-center min-h-[75vh]">
+            <p className='text-lg'>Loading...</p>
+          </div>
+          </>
       ) : (
-        <p>You have no comments yet!</p>
-      )}
+           currentComments.length > 0 ? (
+          <>
+            <Table hoverable className='shadow-md'>
+              <Table.Head>
+                <Table.HeadCell>Date updated</Table.HeadCell>
+                <Table.HeadCell>Comment content</Table.HeadCell>
+                <Table.HeadCell>Number of likes</Table.HeadCell>
+                <Table.HeadCell>PostId</Table.HeadCell>
+                <Table.HeadCell>UserId</Table.HeadCell>
+                <Table.HeadCell>Delete</Table.HeadCell>
+              </Table.Head>
+              {currentComments.map((comment) => (
+                <Table.Body className='divide-y' key={comment._id}>
+                  <Table.Row className='bg-white dark:border-gray-700 dark:bg-gray-800'>
+                    <Table.Cell>
+                      {new Date(comment.updatedAt).toLocaleDateString()}
+                    </Table.Cell>
+                    <Table.Cell>{comment.content}</Table.Cell>
+                    <Table.Cell>{comment.numberOfLikes}</Table.Cell>
+                    <Table.Cell>{comment.postId}</Table.Cell>
+                    <Table.Cell>{comment.userId}</Table.Cell>
+                    <Table.Cell>
+                      <span
+                        onClick={() => {
+                          setShowModal(true);
+                          setCommentIdToDelete(comment._id);
+                        }}
+                        className='font-medium text-red-500 hover:underline cursor-pointer'
+                      >
+                        Delete
+                      </span>
+                    </Table.Cell>
+                  </Table.Row>
+                </Table.Body>
+              ))}
+            </Table>
+            {totalPages > 1 ? (
+               <Pagination onPaginationClick={handlePageChange} totalPages={totalPages} currentPage={currentPage}/>
+            ): (
+            ''
+            )}
+          </>
+        ) : (
+          <p>You have no comments yet!</p>
+        )
+      )
+    ): (
+      <p>You are not authorized to view comments.</p>      
+    )}
       <Modal
         show={showModal}
         onClose={() => setShowModal(false)}

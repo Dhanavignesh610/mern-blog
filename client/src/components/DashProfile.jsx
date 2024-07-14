@@ -115,7 +115,7 @@ export default function DashProfile() {
       }
     } catch (error) { 
       console.log(error);
-      const errormsg = error.response.data.message || "something went wrong "
+      const errormsg = error.response?.data?.message || "something went wrong "
       dispatch(updateFailure(errormsg));
       setUpdateUserError(errormsg);
     }
@@ -135,7 +135,7 @@ export default function DashProfile() {
         navigate('/sigin-in'); // Redirect to home or login after deleting account
       }
     } catch (error) {
-      const errormsg = error.response.data.message || "something went wrong "
+      const errormsg = error.response?.data?.message || "something went wrong "
       dispatch(deleteUserFailure(errormsg));
       setUpdateUserError(errormsg);
     }
@@ -153,7 +153,7 @@ export default function DashProfile() {
         navigate('/sign-in'); 
       }
     } catch (error) {      
-      const errormsg = error.response.data.message || "something went wrong "
+      const errormsg = error.response?.data?.message || "something went wrong "
       setUpdateUserError(errormsg);
     }
   };

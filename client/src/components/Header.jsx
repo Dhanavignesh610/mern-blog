@@ -49,18 +49,12 @@ export default function Header() {
       <div className="flex items-center justify-start">
         <Link
           to="/"
-          className="self-center whitespace-nowrap text-md sm:text-xl font-bold dark:text-white"
+          className="self-center whitespace-nowrap text-md sm:text-xl font-bold  dark:text-white"
         >
           <span className="px-2 py-1 orbitron text-black dark:text-white">Techbytes</span>
         </Link>
       </div>
       <div className="flex gap-2 md:order-2">
-      {/* {currentUser ? (
-        <Button  className="w-12 h-10 hidden sm:inline !p-0" color="gray" pill
-      >
-        {<AiOutlineSearch  className="!p-0" />}
-        </Button>
-      ):""} */}
       {currentUser ? (
       <form onSubmit={handleSubmit} className="ml-4">
           <TextInput
@@ -124,7 +118,7 @@ export default function Header() {
       ):""}
     </Navbar>
     {currentUser ? (
-    <div className="border-b-2 !orbitron m-auto justify-center hidden  md:flex lg:flex xl:hidden">
+    <div className="border-b-2 !orbitron m-auto justify-center hidden dark:bg-[rgb(31,41,55)] md:flex lg:flex xl:hidden">
    <Navbar>
       <Navbar.Collapse className="orbitron text-xs" > 
       <Navbar.Link active={path === '/'} as={'div'}><Link to='/'>HOME</Link></Navbar.Link>

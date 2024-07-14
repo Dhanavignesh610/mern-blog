@@ -35,7 +35,7 @@ export default function DashSidebar() {
         dispatch(signoutSuccess());
       }
     } catch (error) {
-      const errormsg = error.response.data.message || "something went wrong "        
+      const errormsg = error.response?.data?.message || "something went wrong "        
       console.log(errormsg);
     }
   };

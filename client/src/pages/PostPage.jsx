@@ -4,6 +4,7 @@ import { Link, useParams } from "react-router-dom";
 import CommentSection from "../components/CommentSection";
 import PostCard from "../components/PostCard";
 import useAxiosprivate from "../hooks/useAxiosprivate";
+import Skeleton from "react-loading-skeleton";
 
 export default function PostPage() {
   const axiosPrivate = useAxiosprivate();
@@ -46,7 +47,7 @@ export default function PostPage() {
       }
     }
     catch (error) { 
-      const errormsg = error.response.data.message || "something went wrong "        
+      const errormsg = error.response?.data?.message || "something went wrong "        
       console.log(errormsg);
     }  
   }  

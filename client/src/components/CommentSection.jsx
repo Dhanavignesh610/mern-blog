@@ -35,7 +35,7 @@ export default function CommentSection({ postId }) {
         setComments([data, ...comments]);
       }
     } catch (error) {
-      const errormsg = error.response.data.message || "something went wrong "
+      const errormsg = error.response?.data?.message || "something went wrong "
       setCommentError(errormsg);
     }
   };
@@ -48,7 +48,7 @@ export default function CommentSection({ postId }) {
           setComments(res.data);
         }
       } catch (error) {
-        const errormsg = error.response.data.message || "something went wrong "
+        const errormsg = error.response?.data?.message || "something went wrong "
         console.log(errormsg);
       }
     };
@@ -77,7 +77,7 @@ export default function CommentSection({ postId }) {
         );
       }
     } catch (error) {
-      const errormsg = error.response.data.message || "something went wrong "
+      const errormsg = error.response?.data?.message || "something went wrong "
       console.log(errormsg);
     }
   };
@@ -104,7 +104,7 @@ export default function CommentSection({ postId }) {
         setComments(comments.filter((comment) => comment._id !== commentId));
       }
     } catch (error) {
-      const errormsg = error.response.data.message || "something went wrong "
+      const errormsg = error.response?.data?.message || "something went wrong "
       console.log(errormsg);
     }
   };

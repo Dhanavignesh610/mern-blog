@@ -85,7 +85,7 @@ export default function CreatePost() {
       }
   
     } catch (error) {      
-      const errormsg = error.response.data.message || "something went wrong "
+      const errormsg = error.response?.data?.message || "something went wrong "
       setPublishError(errormsg);
     }
   };

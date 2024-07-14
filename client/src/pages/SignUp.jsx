@@ -29,7 +29,7 @@ export default function SignUp() {
         return setErrorMessage(data.message);
       }
     } catch (error) {
-      const errormsg = error.response.data.message || 'Something went wrong'
+      const errormsg = error.response?.data?.message || 'Something went wrong'
       setErrorMessage(errormsg);
       setLoading(false);
     }

@@ -49,7 +49,7 @@ export default function Search() {
         return;
       }
      } catch (error) {
-      const errormsg = error.response.data.message || 'Something went wrong'
+      const errormsg = error.response?.data?.message || 'Something went wrong'
       console.log(errormsg );      
      }
     };
@@ -93,7 +93,7 @@ export default function Search() {
       return;
     }
    } catch (error) {
-    const errormsg = error.response.data.message || 'Something went wrong'
+    const errormsg = error.response?.data?.message || 'Something went wrong'
     console.log(errormsg);        
    }
   };
